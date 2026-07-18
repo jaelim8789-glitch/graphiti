@@ -503,6 +503,30 @@ class EntityNode(Node):
         default={}, description='Additional attributes of the node. Dependent on node labels'
     )
 
+    # --- Long-term memory engine fields (AI Agent memory) ---
+    importance_score: float = Field(
+        default=0.5,
+        description='Memory importance score [0,1]. Higher = more relevant for retrieval.',
+        ge=0.0,
+        le=1.0,
+    )
+    access_count: int = Field(
+        default=0, description='Number of times this memory has been retrieved/accessed', ge=0
+    )
+    last_accessed_at: datetime | None = Field(
+        default=None, description='Wall-clock time of the last retrieval/access'
+    )
+    decay_enabled: bool = Field(
+        default=True,
+        description='When false, importance_score never decays (pinned/protected memory)',
+    )
+    feedback_score: float = Field(
+        default=0.0,
+        description='User feedback signal in [-1,1]. Positive reinforces, negative suppresses.',
+        ge=-1.0,
+        le=1.0,
+    )
+
     async def generate_name_embedding(self, embedder: EmbedderClient):
         start = time()
         text = self.name.replace('\n', ' ')
@@ -557,11 +581,21 @@ class EntityNode(Node):
             'group_id': self.group_id,
             'summary': self.summary,
             'created_at': self.created_at,
+            'importance_score': self.importance_score,
+            'access_count': self.access_count,
+            'last_accessed_at': self.last_accessed_at,
+            'decay_enabled': self.decay_enabled,
+            'feedback_score': self.feedback_score,
         }
 
         if driver.provider == GraphProvider.KUZU:
             entity_data['attributes'] = json.dumps(self.attributes)
             entity_data['labels'] = list(set(self.labels + ['Entity']))
+            entity_data['importance_score'] = self.importance_score
+            entity_data['access_count'] = self.access_count
+            entity_data['last_accessed_at'] = self.last_accessed_at
+            entity_data['decay_enabled'] = self.decay_enabled
+            entity_data['feedback_score'] = self.feedback_score
             result = await driver.execute_query(
                 get_entity_node_save_query(driver.provider, labels=''),
                 **entity_data,
@@ -1059,6 +1093,11 @@ def get_entity_node_from_record(record: Any, provider: GraphProvider) -> EntityN
         attributes.pop('summary', None)
         attributes.pop('created_at', None)
         attributes.pop('labels', None)
+        attributes.pop('importance_score', None)
+        attributes.pop('access_count', None)
+        attributes.pop('last_accessed_at', None)
+        attributes.pop('decay_enabled', None)
+        attributes.pop('feedback_score', None)
 
     labels = record.get('labels', [])
     group_id = record.get('group_id')
@@ -1074,6 +1113,13 @@ def get_entity_node_from_record(record: Any, provider: GraphProvider) -> EntityN
         created_at=parse_db_date(record['created_at']),  # type: ignore
         summary=record['summary'],
         attributes=attributes,
+        importance_score=float(record.get('importance_score', 0.5)),
+        access_count=int(record.get('access_count', 0)),
+        last_accessed_at=parse_db_date(record['last_accessed_at'])
+        if record.get('last_accessed_at')
+        else None,
+        decay_enabled=bool(record.get('decay_enabled', True)),
+        feedback_score=float(record.get('feedback_score', 0.0)),
     )
 
     return entity_node

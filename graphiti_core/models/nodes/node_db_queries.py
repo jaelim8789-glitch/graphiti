@@ -157,7 +157,12 @@ def get_entity_node_save_query(provider: GraphProvider, labels: str, has_aoss: b
                     n.created_at = $created_at,
                     n.name_embedding = $name_embedding,
                     n.summary = $summary,
-                    n.attributes = $attributes
+                    n.attributes = $attributes,
+                    n.importance_score = $importance_score,
+                    n.access_count = $access_count,
+                    n.last_accessed_at = $last_accessed_at,
+                    n.decay_enabled = $decay_enabled,
+                    n.feedback_score = $feedback_score
                 WITH n
                 RETURN n.uuid AS uuid
             """
@@ -277,7 +282,12 @@ def get_entity_node_return_query(provider: GraphProvider) -> str:
             n.labels AS labels,
             n.created_at AS created_at,
             n.summary AS summary,
-            n.attributes AS attributes
+            n.attributes AS attributes,
+            n.importance_score AS importance_score,
+            n.access_count AS access_count,
+            n.last_accessed_at AS last_accessed_at,
+            n.decay_enabled AS decay_enabled,
+            n.feedback_score AS feedback_score
         """
 
     return """
@@ -287,7 +297,12 @@ def get_entity_node_return_query(provider: GraphProvider) -> str:
         n.created_at AS created_at,
         n.summary AS summary,
         labels(n) AS labels,
-        properties(n) AS attributes
+        properties(n) AS attributes,
+        n.importance_score AS importance_score,
+        n.access_count AS access_count,
+        n.last_accessed_at AS last_accessed_at,
+        n.decay_enabled AS decay_enabled,
+        n.feedback_score AS feedback_score
     """
 
 
