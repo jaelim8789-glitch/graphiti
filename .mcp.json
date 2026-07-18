@@ -33,6 +33,34 @@
       "args": ["-y", "@upstash/context7-mcp@latest"],
       "disabled": false,
       "autoApprove": []
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-server-fetch@latest"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "docker": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock", "ghcr.io/pavelanni/mcp-docker:latest"],
+      "disabled": false,
+      "autoApprove": []
     }
   }
 }
