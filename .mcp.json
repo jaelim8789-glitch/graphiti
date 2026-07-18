@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "graphiti": {
+      "type": "streamableHttp",
+      "url": "http://127.0.0.1:8001/mcp/",
+      "disabled": false,
+      "autoApprove": []
+    },
+    "qdrant": {
+      "type": "stdio",
+      "command": "C:\\Users\\UserC\\.claude\\mcp-venvs\\qdrant\\Scripts\\mcp-server-qdrant.exe",
+      "args": [],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "git": {
+      "type": "stdio",
+      "command": "C:\\Users\\UserC\\AppData\\Roaming\\Python\\Python313\\Scripts\\mcp-server-git.exe",
+      "args": [],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Dev\\graphiti"],
+      "disabled": false,
+      "autoApprove": []
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
