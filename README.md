@@ -715,3 +715,42 @@ to [CONTRIBUTING](CONTRIBUTING.md).
 ## Support
 
 Join the [Zep Discord server](https://discord.com/invite/W8Kw6bsgXQ) and make your way to the **#Graphiti** channel!
+
+---
+
+## Fork 사용법 (jaelim8789-glitch/graphiti)
+
+이 저장소는 upstream(`getzep/graphiti`)을 추적하는 개인 Fork이다. 장기 유지보수 전략은
+[`docs/FORK_MAINTENANCE.md`](docs/FORK_MAINTENANCE.md)에 정리되어 있다.
+
+### Remote 구성
+
+```bash
+git clone https://github.com/jaelim8789-glitch/graphiti.git
+cd graphiti
+git remote add upstream https://github.com/getzep/graphiti.git
+git remote -v
+# fork      https://github.com/jaelim8789-glitch/graphiti.git (push 대상)
+# upstream  https://github.com/getzep/graphiti.git            (read-only)
+```
+
+### Upstream 동기화
+
+**방법 A — GitHub Actions (권장, 수동 트리거):**
+`Actions` 탭 → **Sync Upstream** → `Run workflow`
+
+**방법 B — 로컬:**
+
+```bash
+git fetch upstream
+git checkout main
+git rebase upstream/main
+git push fork main --force-with-lease
+```
+
+### Fork 고유 설정
+
+- `.mcp.json`: 로컬 graphiti MCP 서버 + qdrant 연동용 (Fork 전용, upstream에는 없음)
+- 동기화 시 일반적으로 충돌하지 않음. 충돌 시 수동 병합.
+
+상세 절차와 체크리스트는 [`docs/FORK_MAINTENANCE.md`](docs/FORK_MAINTENANCE.md) 참고.

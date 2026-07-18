@@ -1,0 +1,54 @@
+name: Sync Upstream
+
+on:
+  workflow_dispatch:
+    inputs:
+      upstream_branch:
+        description: "Upstream branch to sync from"
+        required: false
+        default: "main"
+      fork_branch:
+        description: "Fork branch to sync into"
+        required: false
+        default: "main"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ inputs.fork_branch }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/getzep/graphiti.git
+          git fetch upstream --tags
+
+      - name: Merge upstream into fork
+        run: |
+          UPSTREAM_BRANCH="${{ inputs.upstream_branch }}"
+          FORK_BRANCH="${{ inputs.fork_branch }}"
+          git merge "upstream/${UPSTREAM_BRANCH}" \
+            --no-edit \
+            -X ours \
+            || {
+              echo "::error::Merge conflict detected. Resolve manually on local."
+              exit 1
+            }
+
+      - name: Push to fork
+        run: |
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" "${{ inputs.fork_branch }}"
